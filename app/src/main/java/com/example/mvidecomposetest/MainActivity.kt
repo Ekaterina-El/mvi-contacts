@@ -17,36 +17,26 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            var screen by remember {
-                mutableStateOf<Screen>(Screen.ContactList)
-            }
+            var screen by remember { mutableStateOf<Screen>(Screen.ContactList) }
             MviDecomposeTestTheme {
                 when (val currentScreen = screen) {
                     Screen.AddContact -> {
                         AddContact(
-                            onContactSaved = {
-                                screen = Screen.ContactList
-                            }
+                            onContactSaved = { screen = Screen.ContactList }
                         )
                     }
 
                     Screen.ContactList -> {
                         Contacts(
-                            onAddContactClick = {
-                                screen = Screen.AddContact
-                            },
-                            onContactClick = {
-                                screen = Screen.EditContact(it)
-                            }
+                            onAddContactClick = { screen = Screen.AddContact },
+                            onContactClick = { screen = Screen.EditContact(it) }
                         )
                     }
 
                     is Screen.EditContact -> {
                         EditContact(
                             contact = currentScreen.contact,
-                            onContactChanged = {
-                                screen = Screen.ContactList
-                            }
+                            onContactChanged = { screen = Screen.ContactList }
                         )
                     }
                 }
@@ -58,6 +48,5 @@ class MainActivity : ComponentActivity() {
 sealed class Screen {
     object ContactList : Screen()
     object AddContact : Screen()
-
     data class EditContact(val contact: Contact) : Screen()
 }
