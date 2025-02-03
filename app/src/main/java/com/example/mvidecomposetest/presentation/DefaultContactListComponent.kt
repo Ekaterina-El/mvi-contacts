@@ -20,12 +20,12 @@ class DefaultContactListComponent(
 
     private val coroutineScope = componentScore()
 
-    override val module: StateFlow<ContactListComponent.Module> get() = getContactsUseCase()
-        .map { ContactListComponent.Module(contacts = it) }
+    override val model: StateFlow<ContactListComponent.Model> get() = getContactsUseCase()
+        .map { ContactListComponent.Model(contacts = it) }
         .stateIn(
             scope = coroutineScope,
             started = SharingStarted.Lazily,
-            initialValue = ContactListComponent.Module(listOf())
+            initialValue = ContactListComponent.Model(listOf())
         )
 
     override fun onAddContactClicked() = onAddContactRequested()

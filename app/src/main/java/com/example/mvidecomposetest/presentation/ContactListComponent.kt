@@ -4,9 +4,9 @@ import com.example.mvidecomposetest.domain.Contact
 import kotlinx.coroutines.flow.StateFlow
 
 interface ContactListComponent {
-    val module: StateFlow<Module>
+    val model: StateFlow<Model>
 
-    data class Module(
+    data class Model(
         val contacts: List<Contact>
     )
 

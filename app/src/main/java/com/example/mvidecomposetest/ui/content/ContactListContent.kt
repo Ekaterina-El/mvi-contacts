@@ -27,21 +27,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.mvidecomposetest.domain.Contact
-import com.example.mvidecomposetest.presentation_legacy.ContactListViewModel
+import com.example.mvidecomposetest.presentation.ContactListComponent
 
 @Composable
-fun Contacts(
-    onAddContactClick: () -> Unit,
-    onContactClick: (Contact) -> Unit
-) {
-    val viewModel: ContactListViewModel = viewModel()
-    val contacts by viewModel.contacts.collectAsState()
+fun ContactListContent(component: ContactListComponent) {
+    val model by component.model.collectAsState()
+    val contacts = model.contacts
 
-    Box(
-        modifier = Modifier.fillMaxSize()
-    ) {
+    Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -54,9 +47,7 @@ fun Contacts(
                 }
             ) {
                 Contact(
-                    modifier = Modifier.clickable {
-                        onContactClick(it)
-                    },
+                    modifier = Modifier.clickable { component.onContactClicked(it) },
                     username = it.username,
                     phone = it.phone
                 )
@@ -67,9 +58,7 @@ fun Contacts(
                 .align(Alignment.BottomEnd)
                 .padding(16.dp),
             containerColor = MaterialTheme.colorScheme.tertiary,
-            onClick = {
-                onAddContactClick()
-            }
+            onClick = component::onAddContactClicked
         ) {
             Image(
                 painter = rememberVectorPainter(image = Icons.Filled.Add),

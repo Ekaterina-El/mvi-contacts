@@ -1,5 +1,6 @@
 package com.example.mvidecomposetest.presentation
 
+import android.os.Parcelable
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.router.stack.StackNavigation
@@ -7,16 +8,15 @@ import com.arkivanov.decompose.router.stack.childStack
 import com.arkivanov.decompose.router.stack.pop
 import com.arkivanov.decompose.router.stack.push
 import com.arkivanov.decompose.value.Value
-import com.arkivanov.essenty.parcelable.Parcelable
-import com.arkivanov.essenty.parcelable.Parcelize
 import com.example.mvidecomposetest.domain.Contact
+import kotlinx.parcelize.Parcelize
 
 class DefaultRootComponent(
     componentContext: ComponentContext
 ) : RootComponent, ComponentContext by componentContext {
     private val navigation = StackNavigation<Config>()
 
-    val childStack: Value<ChildStack<Config, ComponentContext>> =
+    override val childStack: Value<ChildStack<Config, RootComponent.Child>> =
         childStack(
             source = navigation,
             initialConfiguration = Config.ContactList,
@@ -27,31 +27,35 @@ class DefaultRootComponent(
     private fun child(
         config: Config,
         componentContext: ComponentContext
-    ): ComponentContext {
+    ): RootComponent.Child {
         return when (config) {
-            Config.ContactList -> DefaultContactListComponent(
-                componentContext = componentContext,
-                onEditingContactRequested = { contact ->
-                    navigation.push(
-                        configuration = Config.EditContact(contact)
-                    )
-                },
-                onAddContactRequested = {
-                    navigation.push(
-                        configuration = Config.AddContact
-                    )
-                }
-            )
-
-            Config.AddContact -> DefaultAddContactComponent(
+            Config.AddContact -> RootComponent.Child.AddContact(DefaultAddContactComponent(
                 componentContext = componentContext,
                 onContactSaved = navigation::pop
+            ))
+
+            is Config.EditContact -> RootComponent.Child.EditContact(
+                DefaultEditContactComponent(
+                    componentContext = componentContext,
+                    contact = config.contact,
+                    onContactSaved = navigation::pop
+                )
             )
 
-            is Config.EditContact -> DefaultEditContactComponent(
-                componentContext = componentContext,
-                contact = config.contact,
-                onContactSaved = navigation::pop
+            Config.ContactList -> RootComponent.Child.ContactsList(
+                DefaultContactListComponent(
+                    componentContext = componentContext,
+                    onEditingContactRequested = { contact ->
+                        navigation.push(
+                            configuration = Config.EditContact(contact)
+                        )
+                    },
+                    onAddContactRequested = {
+                        navigation.push(
+                            configuration = Config.AddContact
+                        )
+                    }
+                )
             )
         }
     }

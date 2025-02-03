@@ -16,11 +16,11 @@ class DefaultEditContactComponent(
     private val editContactUseCase by lazy { EditContactUseCase(RepositoryImpl) }
 
     private val _module = MutableStateFlow(
-        stateKeeper.consume(KEY, EditContactComponent.Module::class) ?:
-            EditContactComponent.Module(userName = contact.username, phone = contact.phone)
+        stateKeeper.consume(KEY, EditContactComponent.Model::class) ?:
+            EditContactComponent.Model(userName = contact.username, phone = contact.phone)
     )
 
-    override val module: StateFlow<EditContactComponent.Module> get() = _module.asStateFlow()
+    override val model: StateFlow<EditContactComponent.Model> get() = _module.asStateFlow()
 
     init {
         stateKeeper.register(KEY) { _module.value }

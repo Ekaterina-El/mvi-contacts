@@ -5,10 +5,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.parcelize.Parcelize
 
 interface EditContactComponent {
-    val module: StateFlow<Module>
+    val model: StateFlow<Model>
 
     @Parcelize
-    data class Module(
+    data class Model(
         val userName: String,
         val phone: String
     ): Parcelable
