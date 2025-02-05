@@ -1,33 +1,35 @@
 package com.example.mvidecomposetest.presentation
 
 import com.arkivanov.decompose.ComponentContext
+import com.arkivanov.mvikotlin.extensions.coroutines.labels
+import com.arkivanov.mvikotlin.extensions.coroutines.stateFlow
 import com.example.mvidecomposetest.core.componentScore
-import com.example.mvidecomposetest.data.RepositoryImpl
 import com.example.mvidecomposetest.domain.Contact
-import com.example.mvidecomposetest.domain.GetContactsUseCase
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 class DefaultContactListComponent(
     componentContext: ComponentContext,
     private val onEditingContactRequested: (contact: Contact) -> Unit,
     private val onAddContactRequested: () -> Unit
 ) : ContactListComponent, ComponentContext by componentContext {
-    private val repository by lazy { RepositoryImpl }
-    private val getContactsUseCase by lazy { GetContactsUseCase(repository) }
+    private lateinit var store: ContactListStore
 
-    private val coroutineScope = componentScore()
+    init {
+        componentScore().launch {
+            store.labels.collect { label ->
+                when (label) {
+                    ContactListStore.Label.AddContact -> onAddContactRequested()
+                    is ContactListStore.Label.EditContact -> onEditingContactRequested(label.contact)
+                }
+            }
+        }
+    }
 
-    override val model: StateFlow<ContactListComponent.Model> get() = getContactsUseCase()
-        .map { ContactListComponent.Model(contacts = it) }
-        .stateIn(
-            scope = coroutineScope,
-            started = SharingStarted.Lazily,
-            initialValue = ContactListComponent.Model(listOf())
-        )
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val model: StateFlow<ContactListStore.State> get() = store.stateFlow
 
-    override fun onAddContactClicked() = onAddContactRequested()
-    override fun onContactClicked(contact: Contact) = onEditingContactRequested(contact)
+    override fun onAddContactClicked() = store.accept(ContactListStore.Intent.AddContact)
+    override fun onContactClicked(contact: Contact) = store.accept(ContactListStore.Intent.EditContact(contact))
 }
