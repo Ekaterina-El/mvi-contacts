@@ -1,6 +1,7 @@
 package com.example.mvidecomposetest.presentation
 
 import com.arkivanov.decompose.ComponentContext
+import com.arkivanov.mvikotlin.core.instancekeeper.getStore
 import com.arkivanov.mvikotlin.extensions.coroutines.labels
 import com.arkivanov.mvikotlin.extensions.coroutines.stateFlow
 import com.example.mvidecomposetest.core.componentScore
@@ -14,7 +15,7 @@ class DefaultEditContactComponent(
     private val contact: Contact,
     private val onContactSaved: () -> Unit
 ) : EditContactComponent, ComponentContext by componentContext {
-    private lateinit var store: EditContactStore
+    private val store = instanceKeeper.getStore { EditContactStoreFactory().create(contact) }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override val model: StateFlow<EditContactStore.State> get() = store.stateFlow

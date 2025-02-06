@@ -4,12 +4,15 @@ import com.arkivanov.mvikotlin.core.store.Reducer
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
+import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
+import com.example.mvidecomposetest.data.RepositoryImpl
 import com.example.mvidecomposetest.domain.AddContactUseCase
 
-class AddContactStoreFactory(
-    private val storeFactory: StoreFactory,
-    private val addContactUseCase: AddContactUseCase
-) {
+class AddContactStoreFactory {
+    // TODO: in normal APP get as argument by DI
+    private val storeFactory: StoreFactory = DefaultStoreFactory()
+    private val addContactUseCase = AddContactUseCase(RepositoryImpl)
+
     fun create(): AddContactStore = object : AddContactStore,
         Store<AddContactStore.Intent, AddContactStore.State, AddContactStore.Label> by storeFactory.create(
             name = "AddContactStore",
@@ -18,14 +21,14 @@ class AddContactStoreFactory(
             executorFactory = ::ExecutorImpl
         ) {}
 
-    sealed interface Action
+    private sealed interface Action
 
-    sealed interface Message {
+    private sealed interface Message {
         data class ChangeUserName(val username: String): Message
         data class ChangePhone(val phone: String): Message
     }
 
-    object ReducerImpl: Reducer<AddContactStore.State, Message> {
+    private object ReducerImpl: Reducer<AddContactStore.State, Message> {
         override fun AddContactStore.State.reduce(msg: Message): AddContactStore.State = when (msg) {
             is Message.ChangePhone -> copy(phone = msg.phone)
             is Message.ChangeUserName -> copy(username = msg.username)

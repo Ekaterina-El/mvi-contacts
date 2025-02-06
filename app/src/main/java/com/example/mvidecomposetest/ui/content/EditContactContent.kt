@@ -36,7 +36,7 @@ fun EditContactContent(
     ) {
         TextField(
             modifier = Modifier.fillMaxWidth(),
-            value = model.userName,
+            value = model.username,
             placeholder = { Text(text = "Username:") },
             onValueChange = component::onUserNameChanged
         )

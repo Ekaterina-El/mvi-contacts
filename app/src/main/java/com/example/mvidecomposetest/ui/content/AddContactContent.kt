@@ -32,7 +32,7 @@ import com.example.mvidecomposetest.presentation.AddContactComponent
     ) {
         TextField(
             modifier = Modifier.fillMaxWidth(),
-            value = model.userName,
+            value = model.username,
             placeholder = {
                 Text(text = "Username:")
             },
